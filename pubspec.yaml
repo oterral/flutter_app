@@ -39,6 +39,7 @@ dependencies:
   mapbox_gl: ^0.16.0
   http: ^0.13.5
   provider: ^6.0.0
+  proj4dart: ^2.1.0
 
 dev_dependencies:
   flutter_test:

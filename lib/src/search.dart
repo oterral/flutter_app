@@ -1,7 +1,9 @@
 import 'dart:convert';
 
+import 'package:flutter_app/src/app_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Stop {
   final String name;
@@ -71,89 +73,109 @@ class _SearchState extends State<Search> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(children: [
-      Container(
-          // width: 300.0,
-          height: 100.0,
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          color: Colors.white,
-          child: Center(
-            child: TextField(
-                controller: _controller,
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  labelText: 'Search stations',
-                  hintText: 'Bern, Lausanne ...',
-                  hintStyle: TextStyle(
-                    color: Colors.blueGrey[400],
-                    fontSize: 18,
-                    fontStyle: FontStyle.italic,
+    return Consumer<AppModel>(builder: (context, app, child) {
+      double x = app.x;
+      double y = app.y;
+      // var center3857 = Point(x: x, y: y);
+      // var epsg3857ToEpsg4326 = ProjectionTuple(
+      //   // Use built-in projection
+      //   fromProj: Projection.get('EPSG:3857')!,
+      //   // Define custom projection
+      //   toProj: Projection.get('EPSG:4326')!,
+      // );
+      // var center4326 = epsg3857ToEpsg4326.forward(center3857);
+      print("@@@@@@@@@@@@@@@@@ SEARCH");
+      print(x);
+      print(y);
+      print(app.z);
+      // print(center4326.x);
+      // print(center4326.y);
+      return Stack(children: [
+        Container(
+            // width: 300.0,
+            height: 100.0,
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            color: Colors.white,
+            child: Center(
+              child: TextField(
+                  controller: _controller,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    labelText: 'Search stations',
+                    hintText: 'Bern, Lausanne ...',
+                    hintStyle: TextStyle(
+                      color: Colors.blueGrey[400],
+                      fontSize: 18,
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
-                ),
-                onSubmitted: (String value) async {
-                  print('CHANGED');
-                  print(value);
-                  setState(() {
-                    futureStops = fetchStops(value);
-                  });
-                }
-                //   await fetchStops<void>(
-                //     context: context,
-                //     builder: (BuildContext context) {
-                //       return AlertDialog(
-                //         title: const Text('Thanks!'),
-                //         content: Text(
-                //             'You typed "$value", which has length ${value.characters.length}.'),
-                //         actions: <Widget>[
-                //           TextButton(
-                //             onPressed: () {
-                //               Navigator.pop(context);
-                //             },
-                //             child: const Text('OK'),
-                //           ),
-                //         ],
-                //       );
-                //     },
-                //   );
-                // }
-                ),
-          )),
-      Container(
-        margin: const EdgeInsets.only(top: 99.0),
-        color: Colors.white,
-        child: FutureBuilder<List<Stop>>(
-          future: futureStops,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              var data = snapshot.data;
-              if (data != null && data.isNotEmpty) {
-                return ListView.builder(
-                    itemCount: data.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return Container(
-                          margin: const EdgeInsets.all(0),
-                          padding: const EdgeInsets.all(8),
-                          height: 50,
-                          child: ListTile(
-                              onTap: () {
-                                print(data[index].name);
-                                print(data[index].coordinates.toString());
-                                setState(() {
-                                  futureStops = Future(() => []);
-                                  _controller.text = data[index].name;
-                                });
-                              },
-                              title: Text(data[index].name)));
+                  onSubmitted: (String value) async {
+                    print('CHANGED');
+                    print(value);
+                    setState(() {
+                      futureStops = fetchStops(value);
                     });
+                  }
+                  //   await fetchStops<void>(
+                  //     context: context,
+                  //     builder: (BuildContext context) {
+                  //       return AlertDialog(
+                  //         title: const Text('Thanks!'),
+                  //         content: Text(
+                  //             'You typed "$value", which has length ${value.characters.length}.'),
+                  //         actions: <Widget>[
+                  //           TextButton(
+                  //             onPressed: () {
+                  //               Navigator.pop(context);
+                  //             },
+                  //             child: const Text('OK'),
+                  //           ),
+                  //         ],
+                  //       );
+                  //     },
+                  //   );
+                  // }
+                  ),
+            )),
+        Container(
+          margin: const EdgeInsets.only(top: 99.0),
+          color: Colors.white,
+          child: FutureBuilder<List<Stop>>(
+            future: futureStops,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                var data = snapshot.data;
+                if (data != null && data.isNotEmpty) {
+                  return ListView.builder(
+                      itemCount: data.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return Container(
+                            margin: const EdgeInsets.all(0),
+                            padding: const EdgeInsets.all(8),
+                            height: 50,
+                            child: ListTile(
+                                onTap: () {
+                                  print(data[index].name);
+                                  print(data[index].coordinates.toString());
+                                  setState(() {
+                                    futureStops = Future(() => []);
+                                    _controller.text = data[index].name;
+                                  });
+                                  app.center(data[index].coordinates[0],
+                                      data[index].coordinates[1], 15.0);
+                                },
+                                title: Text(data[index].name)));
+                      });
+                }
+              } else if (snapshot.connectionState == ConnectionState.waiting) {
+                // By default, show a loading spinner.
+                return const CircularProgressIndicator();
               }
-            } else if (snapshot.connectionState == ConnectionState.waiting) {
-              // By default, show a loading spinner.
-              return const CircularProgressIndicator();
-            }
-            return const Text('');
-          },
-        ),
-      )
-    ]);
+              return const Text('');
+            },
+          ),
+        )
+      ]);
+    });
   }
 }
