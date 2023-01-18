@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/src/app_model.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
-import 'package:proj4dart/proj4dart.dart';
 import 'package:provider/provider.dart';
 
 class MbMap extends StatefulWidget {
@@ -27,28 +26,39 @@ class _MapState extends State<MbMap> {
       //   toProj: Projection.get('EPSG:4326')!,
       // );
       // var center4326 = epsg3857ToEpsg4326.forward(center3857);
-      print(x);
-      print(y);
-      print(app.z);
+      // print(x);
+      // print(y);
+      // print(app.z);
       // print(center4326.x);
       // print(center4326.y);
       return Stack(children: [
         MapboxMap(
           accessToken:
-              "sk.eyJ1Ijoib3RlcnJhbCIsImEiOiJjbGF0ajRwcWowMWIzM25xcnB1M2lra3M2In0.79lPBtCYQAWhjOdElXixHw",
+              "pk.eyJ1Ijoib3RlcnJhbCIsImEiOiJja2x0a3g4eGsyN255Mm9xeTM3YW9uN2J4In0.evl_o8FActN4G4r3GQeKNw",
+          // "sk.eyJ1Ijoib3RlcnJhbCIsImEiOiJjbGF0ajRwcWowMWIzM25xcnB1M2lra3M2In0.79lPBtCYQAWhjOdElXixHw",
           initialCameraPosition:
               CameraPosition(target: LatLng(app.y, app.x), zoom: app.z),
           styleString:
-              'https://maps.style-dev.geops.io/styles/base_bright_v2/style.json',
+              'https://maps.geops.io/styles/base_bright_v2/style.json?key=5cc87b12d7c5370001c1d6555b11c9605dc84a90b098a4c3bb50eb0a',
           onMapCreated: (controller) {
             print("@@@@@@@@@@@@@ onMapCreated");
-            app.setMapController(controller);
+            app.onMapCreated(controller);
+          },
+          onStyleLoadedCallback: () {
+            print("@@@@@@@@@@@@@ onStyleLoadedCallback");
+            app.onStyleLoadedCallback();
           },
           onMapClick: (point, coordinates) {
             // ignore: avoid_print
             print("@@@@@@@@@@@@@ onMapClick");
             app.onMapClick(point, coordinates);
           },
+          annotationOrder: const [
+            AnnotationType.line,
+            AnnotationType.symbol,
+            AnnotationType.circle,
+            AnnotationType.fill,
+          ],
         ),
         Container(
           margin: const EdgeInsets.only(top: 600.0),
