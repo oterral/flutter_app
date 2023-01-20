@@ -28,6 +28,9 @@ class _LevelBottomSheetState extends State<LevelBottomSheet> {
         minChildSize: app.selectedViaPoint == null ? 0 : 0.1,
         maxChildSize: 0.5,
         builder: (BuildContext context, ScrollController scrollController) {
+          if (app.selectedViaPoint == null) {
+            return const Text('');
+          }
           return Container(
             color: Colors.white,
             child: LevelSelect(
