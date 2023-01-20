@@ -47,6 +47,12 @@ class _MapState extends State<MbMap> {
           onMapCreated: (controller) {
             print("@@@@@@@@@@@@@ onMapCreated");
             app.onMapCreated(controller);
+
+            // Add listener when we click a via point
+            controller.onCircleTapped.add(
+                (Circle circle) => {app.onViaPointTapped(circle, context)});
+            controller.onSymbolTapped.add(
+                (Symbol symbol) => {app.onViaPointTextTapped(symbol, context)});
           },
           onStyleLoadedCallback: () {
             print("@@@@@@@@@@@@@ onStyleLoadedCallback");
@@ -55,7 +61,7 @@ class _MapState extends State<MbMap> {
           onMapClick: (point, coordinates) {
             // ignore: avoid_print
             print("@@@@@@@@@@@@@ onMapClick");
-            app.onMapClick(point, coordinates);
+            app.onMapClick(point, coordinates, context);
 
             // }
           },

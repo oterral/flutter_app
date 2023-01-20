@@ -1,7 +1,10 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_app/sbb/src/modal/sbb_modal.dart';
+import 'package:flutter_app/sbb/src/theme/styles/sbb_styles.dart';
 import 'package:flutter_app/src/fetch.dart';
+import 'package:flutter_app/src/level_select.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 
 class AppModel extends ChangeNotifier {
@@ -53,8 +56,8 @@ class AppModel extends ChangeNotifier {
         enableInteraction: false);
 
     // Add listener when we click a via point
-    mapCtrl!.onCircleTapped.add(onViaPointTapped);
-    mapCtrl!.onSymbolTapped.add(onViaPointTextTapped);
+    // mapCtrl!.onCircleTapped.add(onViaPointTapped);
+    // mapCtrl!.onSymbolTapped.add(onViaPointTextTapped);
   }
 
   /* *
@@ -63,7 +66,7 @@ class AppModel extends ChangeNotifier {
    * 
    * */
 
-  void onMapClick(Point<double> point, LatLng coordinates) async {
+  void onMapClick(Point<double> point, LatLng coordinates, context) async {
     print(point);
     print(coordinates);
     futureFeatures = Future(() => []);
@@ -95,9 +98,10 @@ class AppModel extends ChangeNotifier {
       updateRoute();
       notifyListeners();
     }
+    showLevelsModal(context);
   }
 
-  void onViaPointTapped(Circle circle) {
+  void onViaPointTapped(Circle circle, context) {
     Map<String, dynamic> viaPoint =
         viaPoints.firstWhere((element) => element['circle'] == circle);
     print("###### viaPoint circle tapped");
@@ -110,9 +114,10 @@ class AppModel extends ChangeNotifier {
       updateViaPoints();
     }
     notifyListeners();
+    showLevelsModal(context);
   }
 
-  void onViaPointTextTapped(Symbol text) {
+  void onViaPointTextTapped(Symbol text, context) async {
     Map<String, dynamic> viaPoint =
         viaPoints.firstWhere((element) => element['text'] == text);
     print("###### viaPoint text tapped");
@@ -129,6 +134,7 @@ class AppModel extends ChangeNotifier {
       updateViaPoints();
     }
     notifyListeners();
+    showLevelsModal(context);
   }
 
   void onRouteTapped(Line line) {
@@ -319,6 +325,39 @@ class AppModel extends ChangeNotifier {
    * Bottom sheet management
    * 
    * */
+  void showLevelsModal(context) {
+    if (selectedViaPoint == null) {
+      return;
+    }
+
+    showSBBModalSheet<String>(
+      context: context,
+      title: 'Choose a floor',
+      child: Padding(
+        padding: const EdgeInsetsDirectional.fromSTEB(
+          sbbDefaultSpacing,
+          0.0,
+          sbbDefaultSpacing,
+          sbbDefaultSpacing,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: const [
+            SizedBox(
+              height: 200,
+              child: LevelSelect(),
+            )
+          ],
+        ),
+      ),
+    ).then((result) {
+      selectedViaPoint = null;
+      updateViaPoints();
+      notifyListeners();
+      debugPrint('Modal Sheet Result: $result');
+    });
+  }
 
   void show() {
     if (draggableScrollableController.isAttached) {

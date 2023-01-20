@@ -1,12 +1,6 @@
-import 'dart:async';
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_app/src/app_model.dart';
 import 'package:flutter_app/src/level_select.dart';
-import 'package:flutter_app/src/mylocation_button.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:provider/provider.dart';
 
 class LevelBottomSheet extends StatefulWidget {
@@ -33,9 +27,7 @@ class _LevelBottomSheetState extends State<LevelBottomSheet> {
           }
           return Container(
             color: Colors.white,
-            child: LevelSelect(
-              scrollController,
-            ),
+            child: LevelSelect(),
           );
         },
       );

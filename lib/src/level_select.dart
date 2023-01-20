@@ -3,9 +3,7 @@ import 'package:flutter_app/src/app_model.dart';
 import 'package:provider/provider.dart';
 
 class LevelSelect extends StatefulWidget {
-  final ScrollController scrollController;
-
-  const LevelSelect(this.scrollController, {super.key});
+  const LevelSelect({super.key});
 
   @override
   State<LevelSelect> createState() => _LevelSelectState();
@@ -21,16 +19,16 @@ class _LevelSelectState extends State<LevelSelect> {
       Map<String, dynamic>? viaPoint = app.selectedViaPoint;
 
       if (viaPoint == null) {
-        return const Text('');
+        return const Text('No via point selected');
       }
       String? selectedLevel = viaPoint["level"];
       List<dynamic> availableLevels = viaPoint["properties"]["availableLevels"];
 
       if (availableLevels.isEmpty || selectedLevel == null) {
-        return const Text('');
+        return const Text('No levels');
       }
       return ListView.builder(
-          controller: widget.scrollController,
+          // controller: widget.scrollController,
           itemCount: availableLevels.length,
           itemBuilder: (BuildContext context, int index) {
             // var text = jsonEncode(data[index]);
@@ -48,6 +46,7 @@ class _LevelSelectState extends State<LevelSelect> {
                       app.onSelectViaPointLevel(value);
                     },
                     title: Text(value),
+                    // selected: selectedLevel == value,
                     leading: Radio<String>(
                         value: value,
                         groupValue: selectedLevel,
