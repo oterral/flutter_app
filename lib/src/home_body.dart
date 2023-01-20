@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/src/level_bottom_sheet.dart';
+import 'package:flutter_app/src/level_select.dart';
 import 'package:flutter_app/src/map.dart';
 import 'search.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
@@ -14,7 +16,10 @@ class _HomeBodyState extends State<HomeBody> {
   @override
   Widget build(BuildContext context) {
     return Stack(children: const [
-      MbMap()
+      MbMap(),
+      LevelBottomSheet(),
+      // LevelSelect(),
+
       //, Search()
     ]);
   }

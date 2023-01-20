@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_app/src/app_model.dart';
+import 'package:flutter_app/src/mylocation_button.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:provider/provider.dart';
 
@@ -36,10 +37,13 @@ class _MapState extends State<MbMap> {
           accessToken:
               "pk.eyJ1Ijoib3RlcnJhbCIsImEiOiJja2x0a3g4eGsyN255Mm9xeTM3YW9uN2J4In0.evl_o8FActN4G4r3GQeKNw",
           // "sk.eyJ1Ijoib3RlcnJhbCIsImEiOiJjbGF0ajRwcWowMWIzM25xcnB1M2lra3M2In0.79lPBtCYQAWhjOdElXixHw",
+          styleString:
+              'https://maps.geops.io/styles/travic_v2/style.json?key=5cc87b12d7c5370001c1d6555b11c9605dc84a90b098a4c3bb50eb0a',
           initialCameraPosition:
               CameraPosition(target: LatLng(app.y, app.x), zoom: app.z),
-          styleString:
-              'https://maps.geops.io/styles/base_bright_v2/style.json?key=5cc87b12d7c5370001c1d6555b11c9605dc84a90b098a4c3bb50eb0a',
+          myLocationEnabled: app.myLocationEnabled,
+          myLocationTrackingMode: MyLocationTrackingMode.TrackingCompass,
+          myLocationRenderMode: MyLocationRenderMode.COMPASS,
           onMapCreated: (controller) {
             print("@@@@@@@@@@@@@ onMapCreated");
             app.onMapCreated(controller);
@@ -52,14 +56,35 @@ class _MapState extends State<MbMap> {
             // ignore: avoid_print
             print("@@@@@@@@@@@@@ onMapClick");
             app.onMapClick(point, coordinates);
+
+            // }
           },
           annotationOrder: const [
             AnnotationType.line,
-            AnnotationType.symbol,
-            AnnotationType.circle,
             AnnotationType.fill,
+            AnnotationType.circle,
+            AnnotationType.symbol,
           ],
         ),
+        Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: FloatingActionButton(
+                        onPressed: () {
+                          app.clearMap(); // if (app.selectedViaPoint != null) {
+                        },
+                        tooltip: 'Clear map',
+                        child: const Icon(Icons.replay),
+                      )),
+                  const Padding(
+                      padding: EdgeInsets.all(8.0), child: MyLocationButton()),
+                ])),
+        // Available levels
+
         Container(
           margin: const EdgeInsets.only(top: 600.0),
           color: Colors.white,

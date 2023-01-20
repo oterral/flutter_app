@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/sbb/src/header/sbb_header.dart';
+import 'package:flutter_app/src/app_model.dart';
+import 'package:flutter_app/src/level_select.dart';
+import 'package:provider/provider.dart';
 import 'home_body.dart';
 
 class HomePage extends StatefulWidget {
@@ -42,11 +46,23 @@ class _HomePageState extends State<HomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-        appBar: AppBar(
-          // Here we take the value from the MyHomePage object that was created by
-          // the App.build method, and use it to set our appbar title.
-          title: Text(widget.title),
-        ),
-        body: const HomeBody());
+      appBar: SBBHeader(
+        // Here we take the value from the MyHomePage object that was created by
+        // the App.build method, and use it to set our appbar title.
+        title: widget.title,
+      ),
+      body: const HomeBody(),
+      // bottomSheet: BottomSheet(
+      //   onClosing: () => null,
+      //   builder: (BuildContext context) {
+      //     return Consumer<AppModel>(builder: (context, app, child) {
+      //       if (app.selectedViaPoint == null) {
+      //         return Text('');
+      //       }
+      //       return LevelSelect();
+      //     });
+      //   },
+      // )
+    );
   }
 }
