@@ -75,8 +75,9 @@ class AppModel extends ChangeNotifier {
       selectedViaPoint = null;
       updateViaPoints();
       notifyListeners();
-      // } else if (viaPoints.length == 2) {
-      //   clearMap();
+    } else if (viaPoints.length == 2) {
+      clearMap();
+      notifyListeners();
     } else if (mapCtrl != null) {
       // print('################### queryRenderedFeastures');
       // futureFeatures = mapCtrl.queryRenderedFeatures(
