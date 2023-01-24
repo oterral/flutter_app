@@ -36,6 +36,6 @@ flutter build appbundle
 
 - At the bottom of tester tab, copy the link for tester.
 
-- Send the link to the testers or create a qrcode (using online converter) and send them the qrcode image. Qrcode could be copied in der JIRA ticket for example.
+- Send the link to the testers or create a qrcode (using online converter or with chrome right-click-> create a qrcode) and send them the qrcode image. Qrcode could be copied in der JIRA ticket for example.
 
 - If testers have installed the app they will receive automatically the new updates of this release

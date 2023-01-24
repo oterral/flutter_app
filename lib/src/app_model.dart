@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_app/sbb/src/modal/sbb_modal.dart';
 import 'package:flutter_app/sbb/src/theme/styles/sbb_styles.dart';
-import 'package:flutter_app/src/fetch.dart';
+import 'package:flutter_app/src/utils.dart';
 import 'package:flutter_app/src/level_select.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 
@@ -21,6 +21,7 @@ class AppModel extends ChangeNotifier {
   double popupAnchorX = 8.0;
   double popupPixelY = 46.7;
   MapboxMapController? mapCtrl;
+  final mapKey = GlobalKey();
   List<Map<String, dynamic>> viaPoints = [];
   Map<String, dynamic>? route;
   Future<List<dynamic>> futureFeatures = Future(() => []);
@@ -55,9 +56,20 @@ class AppModel extends ChangeNotifier {
         belowLayerId: 'loom_station_end',
         enableInteraction: false);
 
+    // wait for 0.17.0 version
     // Add listener when we click a via point
     // mapCtrl!.onCircleTapped.add(onViaPointTapped);
     // mapCtrl!.onSymbolTapped.add(onViaPointTextTapped);
+    // final renderBox = mapKey.currentContext?.findRenderObject() as RenderBox;
+
+    // final snapshotOptions = SnapshotOptions(
+    //   width: renderBox.size.width,
+    //   height: renderBox.size.height,
+    //   writeToDisk: true,
+    //   withLogo: false,
+    // );
+
+    // final uri = await mapCtrl?.takeSnapshot(snapshotOptions);
   }
 
   /* *

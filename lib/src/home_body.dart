@@ -17,6 +17,7 @@ class _HomeBodyState extends State<HomeBody> {
   Widget build(BuildContext context) {
     return Stack(children: const [
       MbMap(),
+
       //, Search()
     ]);
   }
