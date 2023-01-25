@@ -1,8 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_app/sbb/src/modal/sbb_modal.dart';
-import 'package:flutter_app/sbb/src/theme/styles/sbb_styles.dart';
+import 'package:design_system_flutter/design_system_flutter.dart';
 import 'package:flutter_app/src/utils.dart';
 import 'package:flutter_app/src/level_select.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
@@ -42,8 +41,6 @@ class AppModel extends ChangeNotifier {
 
   void onStyleLoadedCallback() async {
     //  Add source and layer to display the routing line
-    print('addsource');
-    print(mapCtrl);
     mapCtrl!.addGeoJsonSource('route', buildFeatureCollection([]));
     mapCtrl!.addLayer(
         'route',
@@ -55,21 +52,6 @@ class AppModel extends ChangeNotifier {
         ), // Last style of travic_v2, without this the oute is on top of circles
         belowLayerId: 'loom_station_end',
         enableInteraction: false);
-
-    // wait for 0.17.0 version
-    // Add listener when we click a via point
-    // mapCtrl!.onCircleTapped.add(onViaPointTapped);
-    // mapCtrl!.onSymbolTapped.add(onViaPointTextTapped);
-    // final renderBox = mapKey.currentContext?.findRenderObject() as RenderBox;
-
-    // final snapshotOptions = SnapshotOptions(
-    //   width: renderBox.size.width,
-    //   height: renderBox.size.height,
-    //   writeToDisk: true,
-    //   withLogo: false,
-    // );
-
-    // final uri = await mapCtrl?.takeSnapshot(snapshotOptions);
   }
 
   /* *
@@ -79,23 +61,18 @@ class AppModel extends ChangeNotifier {
    * */
 
   void onMapClick(Point<double> point, LatLng coordinates, context) async {
-    print(point);
-    print(coordinates);
     futureFeatures = Future(() => []);
 
-    if (selectedViaPoint != null) {
-      selectedViaPoint = null;
-      updateViaPoints();
-      notifyListeners();
-    } else if (viaPoints.length == 2) {
+    // if (viaPoints.length == 1) {
+    //   selectedViaPoint = null;
+    //   updateViaPoints();
+    //   notifyListeners();
+    // } else
+    if (viaPoints.length == 2) {
       clearMap();
       notifyListeners();
     } else if (mapCtrl != null) {
-      // print('################### queryRenderedFeastures');
-      // futureFeatures = mapCtrl.queryRenderedFeatures(
-      //     point, ["station_1x_rail", "station_1x_div", "station_2x_div"], null);
-      // notifyListeners();
-
+      selectedViaPoint = null;
       // Clear the display
       clearRoute();
       notifyListeners();
@@ -114,13 +91,9 @@ class AppModel extends ChangeNotifier {
     showLevelsModal(context);
   }
 
-  void onViaPointTapped(Circle circle, context) {
-    Map<String, dynamic> viaPoint =
-        viaPoints.firstWhere((element) => element['circle'] == circle);
-    print("###### viaPoint circle tapped");
+  void onViaPointTapped(viaPoint, context) {
+    print("###### viaPoint tapped");
     print(viaPoint);
-    print(circle);
-
     List<dynamic> availableLevels = viaPoint["properties"]["availableLevels"];
     if (availableLevels.isNotEmpty) {
       selectedViaPoint = viaPoint;
@@ -130,24 +103,18 @@ class AppModel extends ChangeNotifier {
     showLevelsModal(context);
   }
 
-  void onViaPointTextTapped(Symbol text, context) async {
+  void onCircleTapped(Circle circle, context) {
+    Map<String, dynamic> viaPoint =
+        viaPoints.firstWhere((element) => element['circle'] == circle);
+    print("###### viaPoint circle tapped");
+    onViaPointTapped(viaPoint, context);
+  }
+
+  void onSymbolTapped(Symbol text, context) async {
     Map<String, dynamic> viaPoint =
         viaPoints.firstWhere((element) => element['text'] == text);
     print("###### viaPoint text tapped");
-    print(viaPoint);
-    print(text);
-
-    List<dynamic> availableLevels = viaPoint["properties"]["availableLevels"];
-    if (availableLevels.isNotEmpty) {
-      selectedViaPoint = viaPoint;
-      if (draggableScrollableController.isAttached) {
-        draggableScrollableController.animateTo(1,
-            duration: const Duration(seconds: 1), curve: Curves.elasticInOut);
-      }
-      updateViaPoints();
-    }
-    notifyListeners();
-    showLevelsModal(context);
+    onViaPointTapped(viaPoint, context);
   }
 
   void onRouteTapped(Line line) {
@@ -158,7 +125,6 @@ class AppModel extends ChangeNotifier {
   void onSelectViaPointLevel(String? level) async {
     if (selectedViaPoint != null) {
       selectedViaPoint?["level"] = level;
-      print("############onSelectViaPointLevel");
       updateViaPoints();
       updateRoute();
       notifyListeners();
@@ -204,7 +170,6 @@ class AppModel extends ChangeNotifier {
     print(viaPoint);
     viaPoints.add(viaPoint);
     selectedViaPoint = viaPoint;
-    print(draggableScrollableController.isAttached);
     updateViaPoints();
   }
 
@@ -224,8 +189,6 @@ class AppModel extends ChangeNotifier {
 
   // Update style of all via points depending of the current status of the app
   void updateViaPoints() async {
-    print("@@@@@@@@@@@@@@@@@2 updateViaPoints");
-    print(viaPoints.length);
     for (var viaPoint in viaPoints) {
       LatLng geometry = LatLng(
         viaPoint['geometry']['coordinates'][1],
@@ -234,12 +197,9 @@ class AppModel extends ChangeNotifier {
 
       // Define which level to use
       String? selectedLevel = viaPoint["level"];
-      print("@@@@@@@@@@@@@@@@@2 selectedLevel");
-      print(selectedLevel);
 
       if (selectedLevel == null) {
         List<dynamic> levels = viaPoint["properties"]["availableLevels"];
-        print(levels);
         int level0 =
             levels.firstWhere((element) => element == 0, orElse: () => -1);
         if (level0 != -1) {
@@ -253,7 +213,6 @@ class AppModel extends ChangeNotifier {
       // Define circle style
       CircleOptions circleOptions;
       if (viaPoint == selectedViaPoint) {
-        print('selected viapoint');
         circleOptions = CircleOptions(
             geometry: geometry,
             circleColor: "#FF0000",
@@ -273,8 +232,7 @@ class AppModel extends ChangeNotifier {
       } else {
         viaPoint['circle'] = await mapCtrl!.addCircle(circleOptions);
       }
-      print("display text");
-      print(selectedLevel);
+
       // Define text style
       final symbolOptions = SymbolOptions(
           geometry: geometry, textField: selectedLevel, textColor: '#FFFFFF');
@@ -295,15 +253,12 @@ class AppModel extends ChangeNotifier {
 
   // Add the results of the routing between viaPoints on the map.
   void addRoute(Map<String, dynamic>? newRoute) {
-    print('################### addRoute');
-    print(newRoute);
     route = newRoute;
     mapCtrl!.setGeoJsonSource('route', route!);
   }
 
   // Remove the results of the routing between viaPoints from the map
   void removeRoute() {
-    print('################### removeRoute');
     mapCtrl!.setGeoJsonSource('route', {
       "features": [],
       "type": "FeatureCollection",
@@ -343,6 +298,13 @@ class AppModel extends ChangeNotifier {
       return;
     }
 
+    if (selectedViaPoint!["properties"]["availableLevels"].length <= 1) {
+      return;
+    }
+
+    print("nb levels");
+    print(selectedViaPoint!["properties"]["availableLevels"]);
+
     showSBBModalSheet<String>(
       context: context,
       title: 'Choose a floor',
@@ -368,38 +330,6 @@ class AppModel extends ChangeNotifier {
       selectedViaPoint = null;
       updateViaPoints();
       notifyListeners();
-      debugPrint('Modal Sheet Result: $result');
     });
-  }
-
-  void show() {
-    if (draggableScrollableController.isAttached) {
-      print("##################show attached");
-      draggableScrollableController.animateTo(0.5,
-          duration: const Duration(seconds: 1), curve: Curves.elasticInOut);
-    } else {
-      print("##################3 show not attached");
-      //   Future.doWhile(() {
-      //     print("##################3 show attached dowhile");
-      //     if (!draggableScrollableController.isAttached) {
-      //       return Future.value(true);
-      //     }
-      //     print("##################3 show attached");
-      //     return draggableScrollableController
-      //         .animateTo(0.5,
-      //             duration: const Duration(seconds: 1),
-      //             curve: Curves.elasticInOut)
-      //         .then((value) => false);
-      // });
-    }
-  }
-
-  void hide() {
-    if (draggableScrollableController.isAttached) {
-      draggableScrollableController.animateTo(0,
-          duration: const Duration(seconds: 1), curve: Curves.elasticInOut);
-    } else {
-      print("##################3 hide not attached");
-    }
   }
 }

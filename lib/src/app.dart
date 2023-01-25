@@ -1,5 +1,5 @@
+import 'package:design_system_flutter/design_system_flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app/sbb/src/theme/styles/sbb_styles.dart';
 import 'home_page.dart';
 
 class App extends StatelessWidget {

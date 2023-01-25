@@ -14,10 +14,7 @@ class _LevelBottomSheetState extends State<LevelBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return Consumer<AppModel>(builder: (context, app, child) {
-      // Timer(Duration(milliseconds: 1000), () => app.show());
-
       return DraggableScrollableSheet(
-        // controller: app.draggableScrollableController,
         initialChildSize: app.selectedViaPoint == null ? 0 : 0.3,
         minChildSize: app.selectedViaPoint == null ? 0 : 0.1,
         maxChildSize: 0.5,
@@ -27,7 +24,7 @@ class _LevelBottomSheetState extends State<LevelBottomSheet> {
           }
           return Container(
             color: Colors.white,
-            child: LevelSelect(),
+            child: const LevelSelect(),
           );
         },
       );

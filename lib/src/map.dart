@@ -11,7 +11,6 @@ import 'package:intl/intl.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:native_screenshot/native_screenshot.dart';
 import 'package:provider/provider.dart';
-import 'package:screenshot/screenshot.dart';
 
 class MbMap extends StatefulWidget {
   const MbMap({super.key});
@@ -21,14 +20,11 @@ class MbMap extends StatefulWidget {
 }
 
 class _MapState extends State<MbMap> {
-  //Create an instance of ScreenshotController
-  ScreenshotController screenshotController = ScreenshotController();
-
   @override
   Widget build(BuildContext context) {
     return Consumer<AppModel>(builder: (context, app, child) {
-      double x = app.x;
-      double y = app.y;
+      // double x = app.x;
+      // double y = app.y;
       // var center3857 = Point(x: x, y: y);
       // var epsg3857ToEpsg4326 = ProjectionTuple(
       //   // Use built-in projection
@@ -42,159 +38,148 @@ class _MapState extends State<MbMap> {
       // print(app.z);
       // print(center4326.x);
       // print(center4326.y);
-      return Screenshot(
-          controller: screenshotController,
-          child: Stack(children: [
-            MapboxMap(
-              key: app.mapKey,
-              accessToken:
-                  "pk.eyJ1Ijoib3RlcnJhbCIsImEiOiJja2x0a3g4eGsyN255Mm9xeTM3YW9uN2J4In0.evl_o8FActN4G4r3GQeKNw",
-              // "sk.eyJ1Ijoib3RlcnJhbCIsImEiOiJjbGF0ajRwcWowMWIzM25xcnB1M2lra3M2In0.79lPBtCYQAWhjOdElXixHw",
-              styleString:
-                  'https://maps.geops.io/styles/travic_v2/style.json?key=5cc87b12d7c5370001c1d6555b11c9605dc84a90b098a4c3bb50eb0a',
-              initialCameraPosition:
-                  CameraPosition(target: LatLng(app.y, app.x), zoom: app.z),
-              myLocationEnabled: app.myLocationEnabled,
-              myLocationTrackingMode: MyLocationTrackingMode.TrackingCompass,
-              myLocationRenderMode: MyLocationRenderMode.COMPASS,
-              onMapCreated: (controller) {
-                print("@@@@@@@@@@@@@ onMapCreated");
-                app.onMapCreated(controller);
+      return Stack(children: [
+        MapboxMap(
+          key: app.mapKey,
+          accessToken:
+              "pk.eyJ1Ijoib3RlcnJhbCIsImEiOiJja2x0a3g4eGsyN255Mm9xeTM3YW9uN2J4In0.evl_o8FActN4G4r3GQeKNw",
+          // "sk.eyJ1Ijoib3RlcnJhbCIsImEiOiJjbGF0ajRwcWowMWIzM25xcnB1M2lra3M2In0.79lPBtCYQAWhjOdElXixHw",
+          styleString:
+              'https://maps.geops.io/styles/travic_v2/style.json?key=5cc87b12d7c5370001c1d6555b11c9605dc84a90b098a4c3bb50eb0a',
+          initialCameraPosition:
+              CameraPosition(target: LatLng(app.y, app.x), zoom: app.z),
+          myLocationEnabled: app.myLocationEnabled,
+          myLocationTrackingMode: MyLocationTrackingMode.TrackingCompass,
+          myLocationRenderMode: MyLocationRenderMode.COMPASS,
+          onMapCreated: (controller) {
+            print("@@@@@@@@@@@@@ onMapCreated");
+            app.onMapCreated(controller);
 
-                // Add listener when we click a via point
-                controller.onCircleTapped.add(
-                    (Circle circle) => {app.onViaPointTapped(circle, context)});
-                controller.onSymbolTapped.add((Symbol symbol) =>
-                    {app.onViaPointTextTapped(symbol, context)});
-              },
-              onStyleLoadedCallback: () {
-                print("@@@@@@@@@@@@@ onStyleLoadedCallback");
-                app.onStyleLoadedCallback();
-              },
-              onMapClick: (point, coordinates) {
-                // ignore: avoid_print
-                print("@@@@@@@@@@@@@ onMapClick");
-                app.onMapClick(point, coordinates, context);
+            // Add listener when we click a via point
+            controller.onCircleTapped
+                .add((Circle circle) => {app.onCircleTapped(circle, context)});
+            controller.onSymbolTapped
+                .add((Symbol symbol) => {app.onSymbolTapped(symbol, context)});
+          },
+          onStyleLoadedCallback: () {
+            print("@@@@@@@@@@@@@ onStyleLoadedCallback");
+            app.onStyleLoadedCallback();
+          },
+          onMapClick: (point, coordinates) {
+            print("@@@@@@@@@@@@@ onMapClick");
+            app.onMapClick(point, coordinates, context);
+          },
+          annotationOrder: const [
+            AnnotationType.line,
+            AnnotationType.fill,
+            AnnotationType.circle,
+            AnnotationType.symbol,
+          ],
+        ),
 
-                // }
-              },
-              annotationOrder: const [
-                AnnotationType.line,
-                AnnotationType.fill,
-                AnnotationType.circle,
-                AnnotationType.symbol,
-              ],
-            ),
+        Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: FloatingActionButton(
+                        onPressed: () {
+                          app.clearMap();
+                        },
+                        tooltip: 'Clear map',
+                        child: const Icon(Icons.replay),
+                      )),
+                  const Padding(
+                      padding: EdgeInsets.all(8.0), child: MyLocationButton()),
+                  Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: FloatingActionButton(
+                        onPressed: () {
+                          // BetterFEedback doens#t support screenshot of mapbox map
+                          BetterFeedback.of(context)
+                              .show((UserFeedback feedback) async {
+                            List<String> paths = [];
 
-            Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: FloatingActionButton(
-                            onPressed: () {
-                              app.clearMap(); // if (app.selectedViaPoint != null) {
-                            },
-                            tooltip: 'Clear map',
-                            child: const Icon(Icons.replay),
-                          )),
-                      const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: MyLocationButton()),
-                      Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: FloatingActionButton(
-                            onPressed: () {
-                              // BetterFEedback doens#t support screenshot of mapbox map
-                              BetterFeedback.of(context)
-                                  .show((UserFeedback feedback) async {
-                                List<String> paths = [];
+                            // fluter:feedback: Doesn't print the map
+                            // String screenshotFilePath =
+                            //     await writeImageToStorage(
+                            //         feedback.screenshot);
+                            // paths.add(screenshotFilePath);
 
-                                // Doens't print the map
-                                // String screenshotFilePath =
-                                //     await writeImageToStorage(
-                                //         feedback.screenshot);
-                                // paths.add(screenshotFilePath);
+                            // fluter:screenshot: Doesn't print the map
+                            // Uint8List? image2 =
+                            //     await screenshotController.capture();
+                            // if (image2 != null) {
+                            //   String screenshotFilePath2 =
+                            //       await writeImageToStorage(image2);
+                            //   paths.add(screenshotFilePath2);
+                            // }
 
-                                // Doens't print the map
-                                // Uint8List? image2 =
-                                //     await screenshotController.capture();
-                                // if (image2 != null) {
-                                //   String screenshotFilePath2 =
-                                //       await writeImageToStorage(image2);
-                                //   paths.add(screenshotFilePath2);
-                                // }
+                            String? path =
+                                await NativeScreenshot.takeScreenshot();
 
-                                String? path =
-                                    await NativeScreenshot.takeScreenshot();
+                            if (path != null) {
+                              paths.add(path);
+                            }
+                            String nowStr = DateFormat("yyyy-MM-dd H:mm:ss")
+                                .format(DateTime.now());
 
-                                if (path != null) {
-                                  paths.add(path);
-                                }
-                                String nowStr = DateFormat("yyyy-MM-dd H:mm:ss")
-                                    .format(DateTime.now());
+                            final Email email = Email(
+                              body:
+                                  '${feedback.text}\n\nRouting demo url: \n\n${getRoutingDemoUrl(app.viaPoints, app.x, app.y, app.z)}',
+                              subject: 'WalkIn check $nowStr',
+                              recipients: ['jira@geops.ch'],
+                              // cc: ['cc@example.com'],
+                              // bcc: ['bcc@example.com'],
+                              attachmentPaths: paths,
+                              isHTML: false,
+                            );
 
-                                final Email email = Email(
-                                  body:
-                                      '${feedback.text}\n\nRouting demo url: \n\n${getRoutingDemoUrl(app.viaPoints, app.x, app.y, app.z)}',
-                                  subject: 'WalkIn check $nowStr',
-                                  recipients: ['jira@geops.ch'],
-                                  // cc: ['cc@example.com'],
-                                  // bcc: ['bcc@example.com'],
-                                  attachmentPaths: paths,
-                                  isHTML: false,
-                                );
-
-                                FlutterEmailSender.send(email);
-                              });
-                            },
-                            tooltip: 'Send feedback',
-                            child: const Icon(Icons.feedback),
-                          )),
-                    ])),
-            // Available levels
-            // TextFormField(
-            //     readOnly: true,
-            //     initialValue:
-            //         getRoutingDemoUrl(app.viaPoints, app.x, app.y, app.z)),
-            Container(
-              margin: const EdgeInsets.only(top: 600.0),
-              color: Colors.white,
-              child: FutureBuilder<List<dynamic>>(
-                future: app.futureFeatures,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    var data = snapshot.data;
-                    if (data != null && data.isNotEmpty) {
-                      return ListView.builder(
-                          itemCount: data.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            // var text = jsonEncode(data[index]);
-                            JsonEncoder encoder =
-                                const JsonEncoder.withIndent('  ');
-                            String prettyprint = encoder.convert(data[index]);
-                            return Container(
-                                margin: const EdgeInsets.all(0),
-                                padding: const EdgeInsets.all(8),
-                                child: ListTile(
-                                    onTap: () {
-                                      print(prettyprint);
-                                    },
-                                    title: Text(prettyprint)));
+                            FlutterEmailSender.send(email);
                           });
-                    }
-                  } else if (snapshot.connectionState ==
-                      ConnectionState.waiting) {
-                    // By default, show a loading spinner.
-                    return const CircularProgressIndicator();
-                  }
-                  return const Text('');
-                },
-              ),
-            )
-          ]));
+                        },
+                        tooltip: 'Send feedback',
+                        child: const Icon(Icons.feedback),
+                      )),
+                ])),
+        // Available levels
+        Container(
+          margin: const EdgeInsets.only(top: 600.0),
+          color: Colors.white,
+          child: FutureBuilder<List<dynamic>>(
+            future: app.futureFeatures,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                var data = snapshot.data;
+                if (data != null && data.isNotEmpty) {
+                  return ListView.builder(
+                      itemCount: data.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        // var text = jsonEncode(data[index]);
+                        JsonEncoder encoder =
+                            const JsonEncoder.withIndent('  ');
+                        String prettyprint = encoder.convert(data[index]);
+                        return Container(
+                            margin: const EdgeInsets.all(0),
+                            padding: const EdgeInsets.all(8),
+                            child: ListTile(
+                                onTap: () {
+                                  print(prettyprint);
+                                },
+                                title: Text(prettyprint)));
+                      });
+                }
+              } else if (snapshot.connectionState == ConnectionState.waiting) {
+                // By default, show a loading spinner.
+                return const CircularProgressIndicator();
+              }
+              return const Text('');
+            },
+          ),
+        )
+      ]);
     });
   }
 }

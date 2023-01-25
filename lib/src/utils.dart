@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:mapbox_gl/mapbox_gl.dart';
@@ -12,7 +11,7 @@ const apiKey = "5cc87b12d7c5370001c1d655012b7edc8da1475084e49b84b6ba658e";
 Future<Map<String, dynamic>?> fetchViaPoint(LatLng coordinates) async {
   final coord = [coordinates.latitude, coordinates.longitude].join(',');
   final url =
-      'https://walking.geops.io/availableLevels?point=$coord&distance=0.006';
+      'https://walking.geops.io/availableLevels?point=$coord&distance=0.003';
 
   print('################### fetchViaPoint');
   print(url);
