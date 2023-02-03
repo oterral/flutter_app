@@ -16,7 +16,6 @@ class MyLocationButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<AppModel>(builder: (context, app, child) {
-      final sbbToast = SBBToast.of(context);
       IconData icon;
       Color? color;
       // Theme.of(context).buttonTheme.colorScheme?.tertiary
@@ -29,18 +28,15 @@ class MyLocationButton extends StatelessWidget {
       }
       return FloatingActionButton(
         backgroundColor: color,
-        onPressed: () {
-          sbbToast.show(
-            message: "lala",
-          );
-          // Map<Permission, PermissionStatus> statuses = await [
-          //   Permission.location,
-          // ].request();
-          // if (statuses[Permission.location]!.isGranted) {
-          //   app.onMyLocationPressed();
-          // } else {
-          //   print("!!!!!!!!!!!!!! Location permission not granted");
-          // }
+        onPressed: () async {
+          Map<Permission, PermissionStatus> statuses = await [
+            Permission.location,
+          ].request();
+          if (statuses[Permission.location]!.isGranted) {
+            app.onMyLocationPressed();
+          } else {
+            print("!!!!!!!!!!!!!! Location permission not granted");
+          }
         },
         tooltip: 'Toggle my location',
         child: Icon(icon),

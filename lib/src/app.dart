@@ -22,8 +22,12 @@ class App extends StatelessWidget {
       //   // is not restarted.
       //   primarySwatch: Colors.blue,
       // ),
-      theme: SBBTheme.light(),
-      darkTheme: SBBTheme.dark(),
+      theme: SBBTheme.light(
+        hostPlatform: HostPlatform.native,
+      ),
+      darkTheme: SBBTheme.dark(
+        hostPlatform: HostPlatform.native,
+      ),
       themeMode: ThemeMode.light,
       home: const HomePage(title: 'WalkIn'),
     );

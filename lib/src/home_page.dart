@@ -23,8 +23,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    final sbbToast = SBBToast.of(context);
-    sbbToast.show(message: "tete");
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //

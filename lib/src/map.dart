@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:design_system_flutter/design_system_flutter.dart';
 import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 // import 'package:flutter/services.dart';
@@ -14,6 +13,7 @@ import 'package:flutter_native_screenshot/flutter_native_screenshot.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_mailer/flutter_mailer.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class MbMap extends StatefulWidget {
   const MbMap({super.key});
@@ -24,8 +24,7 @@ class MbMap extends StatefulWidget {
 
 class _MapState extends State<MbMap> {
   @override
-  Widget build(BuildContext context) {
-    final sbbToast = SBBToast.of(context);
+  Widget build(BuildContext context2) {
     return Consumer<AppModel>(builder: (context, app, child) {
       // double x = app.x;
       // double y = app.y;
@@ -94,7 +93,9 @@ class _MapState extends State<MbMap> {
                     tooltip: 'Clear map',
                     child: const Icon(Icons.replay),
                   )),
-              Padding(padding: EdgeInsets.all(8.0), child: MyLocationButton()),
+              Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: MyLocationButton()),
               Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: FloatingActionButton(
@@ -128,7 +129,6 @@ class _MapState extends State<MbMap> {
                           String? path =
                               await FlutterNativeScreenshot.takeScreenshot();
 
-                          print(path);
                           if (path != null) {
                             paths.add(path);
                           }
@@ -192,6 +192,13 @@ class _MapState extends State<MbMap> {
                           // sbbToast.show(
                           //   message: platformResponse,
                           // );
+                          Fluttertoast.showToast(
+                              msg: platformResponse,
+                              gravity: ToastGravity.CENTER,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: Colors.red,
+                              textColor: Colors.white,
+                              fontSize: 16.0);
                         });
                       } else {
                         print("No permission granted");

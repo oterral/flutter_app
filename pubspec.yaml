@@ -54,6 +54,7 @@ dependencies:
       url: https://github.com/SchweizerischeBundesbahnen/design_system_flutter.git
       ref: 56a0f3b
   permission_handler: 10.2.0
+  fluttertoast: ^8.1.2
 
 dev_dependencies:
   flutter_test:
