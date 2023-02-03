@@ -1,16 +1,19 @@
 import 'dart:convert';
 
+import 'package:design_system_flutter/design_system_flutter.dart';
 import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+// import 'package:flutter/services.dart';
 import 'package:flutter_app/src/app_model.dart';
 import 'package:flutter_app/src/mylocation_button.dart';
 import 'package:flutter_app/src/utils.dart';
-import 'package:flutter_email_sender/flutter_email_sender.dart';
+// import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:intl/intl.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
-import 'package:native_screenshot/native_screenshot.dart';
+import 'package:flutter_native_screenshot/flutter_native_screenshot.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_mailer/flutter_mailer.dart';
 
 class MbMap extends StatefulWidget {
   const MbMap({super.key});
@@ -22,6 +25,7 @@ class MbMap extends StatefulWidget {
 class _MapState extends State<MbMap> {
   @override
   Widget build(BuildContext context) {
+    final sbbToast = SBBToast.of(context);
     return Consumer<AppModel>(builder: (context, app, child) {
       // double x = app.x;
       // double y = app.y;
@@ -79,71 +83,124 @@ class _MapState extends State<MbMap> {
 
         Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: FloatingActionButton(
-                        onPressed: () {
-                          app.clearMap();
-                        },
-                        tooltip: 'Clear map',
-                        child: const Icon(Icons.replay),
-                      )),
-                  const Padding(
-                      padding: EdgeInsets.all(8.0), child: MyLocationButton()),
-                  Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: FloatingActionButton(
-                        onPressed: () {
-                          // BetterFEedback doens#t support screenshot of mapbox map
-                          BetterFeedback.of(context)
-                              .show((UserFeedback feedback) async {
-                            List<String> paths = [];
+            child: Row(mainAxisAlignment: MainAxisAlignment.start, children: <
+                Widget>[
+              Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: FloatingActionButton(
+                    onPressed: () {
+                      app.clearMap();
+                    },
+                    tooltip: 'Clear map',
+                    child: const Icon(Icons.replay),
+                  )),
+              Padding(padding: EdgeInsets.all(8.0), child: MyLocationButton()),
+              Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: FloatingActionButton(
+                    onPressed: () async {
+                      Map<Permission, PermissionStatus> statuses = await [
+                        Permission.storage,
+                      ].request();
+                      if (statuses[Permission.storage]!.isGranted) {
+                        // code of read or write file in external storage (SD card)
+                        // BetterFEedback doens#t support screenshot of mapbox map
+                        // ignore: use_build_context_synchronously
+                        BetterFeedback.of(context)
+                            .show((UserFeedback feedback) async {
+                          List<String> paths = [];
 
-                            // fluter:feedback: Doesn't print the map
-                            // String screenshotFilePath =
-                            //     await writeImageToStorage(
-                            //         feedback.screenshot);
-                            // paths.add(screenshotFilePath);
+                          // fluter:feedback: Doesn't print the map
+                          // String screenshotFilePath =
+                          //     await writeImageToStorage(
+                          //         feedback.screenshot);
+                          // paths.add(screenshotFilePath);
 
-                            // fluter:screenshot: Doesn't print the map
-                            // Uint8List? image2 =
-                            //     await screenshotController.capture();
-                            // if (image2 != null) {
-                            //   String screenshotFilePath2 =
-                            //       await writeImageToStorage(image2);
-                            //   paths.add(screenshotFilePath2);
-                            // }
+                          // fluter:screenshot: Doesn't print the map
+                          // Uint8List? image2 =
+                          //     await screenshotController.capture();
+                          // if (image2 != null) {
+                          //   String screenshotFilePath2 =
+                          //       await writeImageToStorage(image2);
+                          //   paths.add(screenshotFilePath2);
+                          // }
 
-                            String? path =
-                                await NativeScreenshot.takeScreenshot();
+                          String? path =
+                              await FlutterNativeScreenshot.takeScreenshot();
 
-                            if (path != null) {
-                              paths.add(path);
-                            }
-                            String nowStr = DateFormat("yyyy-MM-dd H:mm:ss")
-                                .format(DateTime.now());
+                          print(path);
+                          if (path != null) {
+                            paths.add(path);
+                          }
+                          String nowStr = DateFormat("yyyy-MM-dd H:mm:ss")
+                              .format(DateTime.now());
 
-                            final Email email = Email(
-                              body:
-                                  '${feedback.text}\n\nRouting demo url: \n\n${getRoutingDemoUrl(app.viaPoints, app.x, app.y, app.z)}',
-                              subject: 'WalkIn check $nowStr',
-                              recipients: ['jira@geops.ch'],
-                              // cc: ['cc@example.com'],
-                              // bcc: ['bcc@example.com'],
-                              attachmentPaths: paths,
-                              isHTML: false,
-                            );
+                          String body =
+                              '${feedback.text}\n\nRouting demo url: \n\n${getRoutingDemoUrl(app.viaPoints, app.x, app.y, app.z)}';
+                          String subject = 'WalkIn check $nowStr';
+                          List<String> recipients = ['jira@geops.ch'];
+                          // [
+                          //   'olivier.terral@geops.com'
+                          // ];
+                          //['jira@geops.ch'];
 
-                            FlutterEmailSender.send(email);
-                          });
-                        },
-                        tooltip: 'Send feedback',
-                        child: const Icon(Icons.feedback),
-                      )),
-                ])),
+                          // final Email email = Email(
+                          //   body: body,
+                          //   subject: subject,
+                          //   recipients: recipients,
+                          //   // cc: ['cc@example.com'],
+                          //   // bcc: ['bcc@example.com'],
+                          //   attachmentPaths: paths,
+                          //   isHTML: false,
+                          // );
+
+                          // FlutterEmailSender.send(email);
+                          final MailOptions mailOptions = MailOptions(
+                            body: body,
+                            subject: subject,
+                            recipients: recipients,
+                            isHTML: false,
+                            attachments: paths,
+                          );
+                          String platformResponse;
+                          final MailerResponse response =
+                              await FlutterMailer.send(mailOptions);
+                          switch (response) {
+                            case MailerResponse.saved:
+
+                              /// ios only
+                              platformResponse = 'mail was saved to draft';
+                              break;
+                            case MailerResponse.sent:
+
+                              /// ios only
+                              platformResponse = 'mail was sent';
+                              break;
+                            case MailerResponse.cancelled:
+
+                              /// ios only
+                              platformResponse = 'mail was cancelled';
+                              break;
+                            case MailerResponse.android:
+                              platformResponse = 'intent was successful';
+                              break;
+                            default:
+                              platformResponse = 'unknown';
+                              break;
+                          }
+                          print(platformResponse);
+                          // sbbToast.show(
+                          //   message: platformResponse,
+                          // );
+                        });
+                      } else {
+                        print("No permission granted");
+                      }
+                    },
+                    tooltip: 'Send feedback',
+                    child: const Icon(Icons.feedback),
+                  )),
+            ])),
         // Available levels
         Container(
           margin: const EdgeInsets.only(top: 600.0),
